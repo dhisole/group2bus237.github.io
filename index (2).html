@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Predictive Analytics in Supply Chain</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #08090c;
+      --surface: #0f1117;
+      --surface2: #161820;
+      --accent: #00e5c8;
+      --accent2: #ff6b35;
+      --accent3: #7b61ff;
+      --text: #e8eaf0;
+      --muted: #6b7280;
+      --border: rgba(255,255,255,0.07);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      font-size: 15px;
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      opacity: .4; pointer-events: none; z-index: 0;
+    }
+
+    .hero {
+      position: relative; min-height: 100svh;
+      display: flex; flex-direction: column; justify-content: center;
+      padding: 6rem 2rem 4rem; overflow: hidden;
+    }
+
+    .hero-glow {
+      position: absolute; top: -120px; left: -120px;
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(0,229,200,.18) 0%, transparent 70%);
+      animation: drift 8s ease-in-out infinite alternate; pointer-events: none;
+    }
+    .hero-glow2 {
+      position: absolute; bottom: -80px; right: -80px;
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(123,97,255,.14) 0%, transparent 70%);
+      animation: drift 10s ease-in-out infinite alternate-reverse; pointer-events: none;
+    }
+
+    @keyframes drift { from{transform:translate(0,0)} to{transform:translate(40px,30px)} }
+
+    .hero-inner { position: relative; max-width: 900px; margin: 0 auto; width: 100%; }
+
+    .eyebrow {
+      font-size:.72rem; letter-spacing:.2em; text-transform:uppercase;
+      color:var(--accent); margin-bottom:1.4rem;
+      opacity:0; animation:fadeUp .6s .2s forwards;
+    }
+
+    h1 {
+      font-family:'Syne',sans-serif;
+      font-size:clamp(2.4rem,6vw,5.5rem);
+      font-weight:800; line-height:1.05; letter-spacing:-.02em; margin-bottom:1.6rem;
+      opacity:0; animation:fadeUp .7s .35s forwards;
+    }
+    h1 em { font-style:normal; color:var(--accent); }
+
+    .hero-desc {
+      max-width:560px; color:var(--muted); font-size:.95rem; margin-bottom:2.4rem;
+      opacity:0; animation:fadeUp .7s .5s forwards;
+    }
+
+    .hero-meta {
+      font-size:.75rem; color:var(--muted); letter-spacing:.08em;
+      opacity:0; animation:fadeUp .6s .65s forwards;
+    }
+    .hero-meta span { color:var(--accent); }
+
+    .scroll-hint {
+      position:absolute; bottom:2.5rem; left:50%; transform:translateX(-50%);
+      display:flex; flex-direction:column; align-items:center; gap:.5rem;
+      font-size:.65rem; letter-spacing:.15em; text-transform:uppercase; color:var(--muted);
+      opacity:0; animation:fadeUp .5s 1s forwards;
+    }
+    .scroll-hint::after {
+      content:''; width:1px; height:40px;
+      background:linear-gradient(to bottom,var(--muted),transparent);
+      animation:grow 1.5s ease-in-out infinite;
+    }
+    @keyframes grow { 0%,100%{height:20px} 50%{height:42px} }
+
+    nav {
+      position:sticky; top:0; z-index:100;
+      background:rgba(8,9,12,.85); backdrop-filter:blur(16px);
+      border-bottom:1px solid var(--border); padding:.8rem 2rem;
+    }
+    .nav-inner {
+      max-width:900px; margin:0 auto;
+      display:flex; align-items:center; justify-content:space-between; gap:1rem;
+    }
+    .nav-logo {
+      font-family:'Syne',sans-serif; font-size:.85rem; font-weight:700;
+      color:var(--accent); text-decoration:none;
+    }
+    .nav-links { display:flex; gap:1.2rem; list-style:none; flex-wrap:wrap; }
+    .nav-links a {
+      font-size:.68rem; letter-spacing:.1em; text-transform:uppercase;
+      color:var(--muted); text-decoration:none; transition:color .2s;
+    }
+    .nav-links a:hover { color:var(--text); }
+
+    section { max-width:900px; margin:0 auto; padding:6rem 2rem; }
+
+    .section-label {
+      font-size:.68rem; letter-spacing:.22em; text-transform:uppercase;
+      color:var(--accent); margin-bottom:1rem;
+    }
+
+    h2 {
+      font-family:'Syne',sans-serif;
+      font-size:clamp(1.8rem,4vw,3rem);
+      font-weight:700; margin-bottom:1.8rem; line-height:1.15;
+    }
+
+    h3 { font-family:'Syne',sans-serif; font-weight:700; font-size:1.15rem; margin-bottom:.6rem; }
+
+    p { color:var(--muted); margin-bottom:1rem; }
+    p:last-child { margin-bottom:0; }
+
+    hr { border:none; height:1px; background:var(--border); max-width:900px; margin:0 auto; }
+
+    /* STAT STRIP */
+    .stat-strip {
+      display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
+      gap:1.2rem; margin-top:2.5rem;
+    }
+    .stat-box {
+      background:var(--surface); border:1px solid var(--border);
+      border-radius:12px; padding:1.5rem 1.3rem;
+    }
+    .stat-num {
+      font-family:'Syne',sans-serif; font-size:2rem; font-weight:800;
+      color:var(--accent); line-height:1;
+    }
+    .stat-label { font-size:.72rem; color:var(--muted); letter-spacing:.05em; margin-top:.5rem; }
+
+    /* TABS */
+    .tab-nav { display:flex; gap:.6rem; flex-wrap:wrap; margin-bottom:1.8rem; margin-top:1rem; }
+    .tab-btn {
+      background:var(--surface); border:1px solid var(--border); border-radius:999px;
+      padding:.45rem 1.1rem; font-family:'DM Mono',monospace;
+      font-size:.72rem; letter-spacing:.08em; color:var(--muted);
+      cursor:pointer; transition:all .2s;
+    }
+    .tab-btn.active, .tab-btn:hover { border-color:var(--accent); color:var(--accent); }
+    .tab-panel { display:none; }
+    .tab-panel.active { display:block; }
+
+    .adv-card {
+      background:var(--surface); border:1px solid var(--border);
+      border-radius:16px; padding:2rem 2.2rem;
+    }
+    .adv-card h3 { color:var(--accent); font-size:1.3rem; margin-bottom:1rem; }
+
+    .stat-inline { display:flex; flex-wrap:wrap; gap:1rem; margin:1.4rem 0; }
+    .stat-pill {
+      background:rgba(0,229,200,.08); border:1px solid rgba(0,229,200,.18);
+      border-radius:8px; padding:.6rem 1rem;
+      font-family:'Syne',sans-serif; font-size:.82rem; font-weight:700; color:var(--accent);
+    }
+
+    /* TWO COL */
+    .two-col { display:grid; grid-template-columns:1fr 1fr; gap:2rem; margin-top:2rem; }
+    @media(max-width:600px){ .two-col{grid-template-columns:1fr} }
+    .con-col { border-left:2px solid var(--accent2); padding-left:1.5rem; }
+    .pro-col { border-left:2px solid var(--accent); padding-left:1.5rem; }
+    .pro-col h3 { color:var(--accent); }
+    .con-col h3 { color:var(--accent2); }
+    .item { margin-bottom:1.8rem; }
+    .item h4 {
+      font-family:'Syne',sans-serif; font-size:.92rem; font-weight:600;
+      margin-bottom:.4rem; color:var(--text);
+    }
+
+    /* IMPACT GRID */
+    .impact-grid {
+      display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+      gap:1.2rem; margin-top:2rem;
+    }
+    .impact-card {
+      background:var(--surface); border:1px solid var(--border);
+      border-radius:14px; padding:1.8rem;
+      transition:border-color .25s, transform .25s;
+    }
+    .impact-card:hover { border-color:var(--accent3); transform:translateY(-3px); }
+    .impact-card .tag {
+      font-size:.65rem; letter-spacing:.15em; text-transform:uppercase;
+      color:var(--accent3); margin-bottom:.8rem;
+    }
+    .impact-card h4 {
+      font-family:'Syne',sans-serif; font-size:1rem; font-weight:700;
+      margin-bottom:.5rem; color:var(--text);
+    }
+
+    /* EXAMPLES */
+    .example-block {
+      background:var(--surface); border:1px solid var(--border);
+      border-radius:16px; padding:2.2rem; margin-bottom:1.6rem;
+    }
+    .example-block h3 { font-size:1.5rem; color:var(--accent3); margin-bottom:1rem; }
+
+    /* TAKEAWAYS */
+    .takeaways-grid {
+      display:grid; grid-template-columns:repeat(auto-fill,minmax(190px,1fr));
+      gap:1rem; margin-top:2rem;
+    }
+    .takeaway {
+      background:var(--surface2); border:1px solid var(--border); border-radius:10px;
+      padding:1.4rem 1.2rem; font-family:'Syne',sans-serif;
+      font-size:.9rem; font-weight:600; color:var(--text);
+      display:flex; align-items:center; gap:.75rem;
+    }
+    .takeaway::before { content:'→'; color:var(--accent); font-size:1.1rem; }
+
+    .callout {
+      background:linear-gradient(135deg,rgba(0,229,200,.07),rgba(123,97,255,.07));
+      border:1px solid rgba(0,229,200,.2);
+      border-radius:16px; padding:2.5rem; margin-top:2rem; text-align:center;
+    }
+    .callout h3 { font-size:1.6rem; margin-bottom:.8rem; }
+
+    /* REFS */
+    .ref-list { list-style:none; margin-top:1.5rem; }
+    .ref-list li {
+      border-bottom:1px solid var(--border); padding:.9rem 0;
+      font-size:.78rem; color:var(--muted); line-height:1.6;
+    }
+    .ref-list a { color:var(--accent); text-decoration:none; }
+    .ref-list a:hover { text-decoration:underline; }
+
+    footer {
+      text-align:center; padding:2.5rem 1rem;
+      font-size:.72rem; color:var(--muted); border-top:1px solid var(--border);
+    }
+
+    @keyframes fadeUp {
+      from{opacity:0;transform:translateY(20px)}
+      to{opacity:1;transform:translateY(0)}
+    }
+    .reveal { opacity:0; transform:translateY(24px); transition:opacity .6s ease,transform .6s ease; }
+    .reveal.visible { opacity:1; transform:translateY(0); }
+  </style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-glow2"></div>
+  <div class="hero-inner">
+    <p class="eyebrow">Supply Chain &amp; Retail Technology — 2025</p>
+    <h1>Predictive<br>Analytics <em>&amp;</em><br>AI Logistics</h1>
+    <p class="hero-desc">
+      How machine learning and neural networks are transforming retail supply chain management — from demand forecasting to cost reduction and customer engagement.
+    </p>
+    <p class="hero-meta">By <span>Emmie Huynh</span>, <span>David Hisole</span>, <span>Justin Fournier</span></p>
+  </div>
+  <div class="scroll-hint">Scroll</div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <a class="nav-logo" href="#">PredictiveAI</a>
+    <ul class="nav-links">
+      <li><a href="#what">What</a></li>
+      <li><a href="#advantages">Advantages</a></li>
+      <li><a href="#retail-impact">Retail Impact</a></li>
+      <li><a href="#disadvantages">Challenges</a></li>
+      <li><a href="#examples">Examples</a></li>
+      <li><a href="#future">Future</a></li>
+      <li><a href="#refs">References</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- WHAT -->
+<section id="what">
+  <p class="section-label reveal">01 — What is it?</p>
+  <h2 class="reveal">Data-Driven<br>Decision Making</h2>
+  <p class="reveal">
+    Predictive analytics is the analysis of large aggregations of data to produce data-driven decisions. This technology enables companies to forecast trends, identify potential logistical risks, and streamline supply chain operations.
+  </p>
+  <p class="reveal">
+    The technology leverages AI and machine learning — including neural networks and deep learning — to deliver analytical information that optimizes operational performance. AI-driven analytics automate menial tasks, greatly reducing the risk of human error (IBM, n.d.).
+  </p>
+  <p class="reveal">
+    Unlike traditional forecasting methods that rely on historical sales data alone, AI expands scope by absorbing external data such as weather, social media conversations, shipping delays, and economic indicators — creating a far more comprehensive picture of demand (IBM, n.d.).
+  </p>
+
+  <div class="stat-strip reveal">
+    <div class="stat-box">
+      <div class="stat-num">42%</div>
+      <div class="stat-label">Average improvement in forecast accuracy for retailers using comprehensive predictive analytics</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num">10–30%</div>
+      <div class="stat-label">Reduction in inventory costs after implementing advanced predictive analytics</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num">64–78%</div>
+      <div class="stat-label">Reduction in decision-making time vs. human analysts working alone</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num">50%</div>
+      <div class="stat-label">Reduction in forecasting errors documented using AI (IBM, n.d.)</div>
+    </div>
+  </div>
+</section>
+
+<hr>
+
+<!-- ADVANTAGES -->
+<section id="advantages">
+  <p class="section-label reveal">02 — Advantages</p>
+  <h2 class="reveal">Three Core Benefits</h2>
+  <p class="reveal">After retailers implemented predictive analytics and developed neural networks, measurable gains appeared across three critical dimensions. Select a category to explore the data.</p>
+
+  <div class="tab-nav reveal">
+    <button class="tab-btn active" data-tab="cost">Cost Reduction</button>
+    <button class="tab-btn" data-tab="time">Time &amp; Efficiency</button>
+    <button class="tab-btn" data-tab="forecast">Forecasting</button>
+  </div>
+
+  <div class="tab-panel active" id="tab-cost">
+    <div class="adv-card">
+      <h3>Inventory Cost Reduction</h3>
+      <p>Retailers implementing advanced predictive analytics experience significant reductions in inventory costs — one of the most immediately measurable returns on AI investment.</p>
+      <div class="stat-inline">
+        <div class="stat-pill">10–30% avg. inventory cost reduction</div>
+        <div class="stat-pill">20–30% carrying cost reduction</div>
+        <div class="stat-pill">Up to 45% in some implementations</div>
+      </div>
+      <p>AI-driven inventory optimization achieves carrying cost reductions of 20–30%, with some implementations achieving up to 45% reductions (Mattegunta, 2025). These gains come from minimizing excess inventory, reducing stockouts, and reallocating capital previously tied up in warehousing.</p>
+      <p>By processing demand signals in real time, systems can trigger inventory optimizations within 15–20 minutes of a demand shift — dramatically faster than weekly or monthly human review cycles (Mattegunta, 2025).</p>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="tab-time">
+    <div class="adv-card">
+      <h3>Decision-Making Speed</h3>
+      <p>Fully integrated AI merchandising systems compress decision timelines in ways that would be impossible for human teams alone.</p>
+      <div class="stat-inline">
+        <div class="stat-pill">64–78% faster decisions vs. analysts</div>
+        <div class="stat-pill">Price adjustments in 3–5 min</div>
+        <div class="stat-pill">Inventory optimization in 15–20 min</div>
+        <div class="stat-pill">Promotional planning compressed 45–60%</div>
+      </div>
+      <p>Modern streaming analytics platforms enable dynamic pricing adjustments within 3–5 minutes of competitive changes, and inventory optimizations within 15–20 minutes of a demand signal shift. Promotional planning timeframes can be compressed by 45–60%, allowing retailers to capitalize on trend windows before competitors (Mattegunta, 2025).</p>
+      <p>As a real-world benchmark: Idaho Forest Group used AI-powered improvements to reduce forecasting time from over 80 hours to under 15 (IBM, n.d.).</p>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="tab-forecast">
+    <div class="adv-card">
+      <h3>Forecasting Accuracy</h3>
+      <p>Forecast accuracy is the bedrock of supply chain performance. Predictive AI dramatically raises what's achievable.</p>
+      <div class="stat-inline">
+        <div class="stat-pill">42% avg. accuracy improvement</div>
+        <div class="stat-pill">85–92% short-term (1–7 days)</div>
+        <div class="stat-pill">75–83% medium-term (8–30 days)</div>
+        <div class="stat-pill">+8–13% with external data</div>
+      </div>
+      <p>Retailers adopting comprehensive predictive capabilities achieve a documented average 42% improvement in forecast accuracy. Modern algorithms reach 85–92% accuracy for short-term demand (1–7 days) and 75–83% for medium-term forecasts (8–30 days) — well above the 60–70% typical of traditional methods (Mattegunta, 2025).</p>
+      <p>The integration of external data streams — such as weather, social media, and economic indicators — can further improve these forecasts by 8–13% (Mattegunta, 2025; IBM, n.d.).</p>
+    </div>
+  </div>
+</section>
+
+<hr>
+
+<!-- RETAIL IMPACT -->
+<section id="retail-impact">
+  <p class="section-label reveal">03 — Retail Impact</p>
+  <h2 class="reveal">Beyond the Supply Chain:<br>Broader Business Effects</h2>
+  <p class="reveal">When retailers implement predictive analytics end-to-end, the benefits extend well past logistics. Three interconnected areas show the most pronounced results.</p>
+
+  <div class="impact-grid">
+    <div class="impact-card reveal">
+      <p class="tag">Customer-Facing</p>
+      <h4>Customer Engagement &amp; Personalization</h4>
+      <p>AI enables hyper-personalized product recommendations and targeted promotions by analyzing purchase history, browsing behaviour, and real-time demand signals. This builds loyalty and increases customer lifetime value.</p>
+      <p>88% of retail executives identify demand forecasting as a key area for AI improvement — largely because accurate forecasts mean products are available when and where customers expect them (IBM, n.d.).</p>
+    </div>
+
+    <div class="impact-card reveal">
+      <p class="tag">Bottom Line</p>
+      <h4>Financial Performance</h4>
+      <p>Reduced carrying costs (20–45%), tighter inventory control, and fewer markdowns translate directly into improved profit margins. AI also enables smarter capital allocation by revealing which SKUs or regions generate the highest return on inventory investment (Mattegunta, 2025).</p>
+      <p>One study showed AI helped reduce forecasting errors by as much as 50%, directly reducing costly write-offs from over-ordering (IBM, n.d.).</p>
+    </div>
+
+    <div class="impact-card reveal">
+      <p class="tag">Revenue Growth</p>
+      <h4>Marketing &amp; Promotional Impact</h4>
+      <p>With promotional planning compressed by 45–60%, marketing teams can respond to trend windows faster. Dynamic pricing models — adjusting in as little as 3–5 minutes — ensure price competitiveness without sacrificing margin (Mattegunta, 2025).</p>
+      <p>Zara's AI-driven design and forecasting cycle is a prime example: by integrating predictive analytics into promotional and assortment planning, they outpace competitors on trend response speed.</p>
+    </div>
+  </div>
+</section>
+
+<hr>
+
+<!-- DISADVANTAGES -->
+<section id="disadvantages">
+  <p class="section-label reveal">04 — Challenges</p>
+  <h2 class="reveal">The Real Obstacles</h2>
+
+  <div class="two-col">
+    <div class="con-col">
+      <div class="item reveal">
+        <h4>Data Quality</h4>
+        <p>Since AI models are trained on historical data, inconsistent or poor-quality data can skew the model, produce abnormal outputs, and reduce decision accuracy (IBM, n.d.).</p>
+      </div>
+      <div class="item reveal">
+        <h4>Ethical Complications</h4>
+        <p>The collection, unchecked use, or misuse of data may damage customer trust. Businesses must consider data privacy, security, and evolving compliance requirements (IBM, n.d.).</p>
+      </div>
+      <div class="item reveal">
+        <h4>High Upfront Cost</h4>
+        <p>These AI models may require new software and hardware beyond existing legacy systems. Training or hiring skilled labour for integration can be costly for many firms.</p>
+      </div>
+      <div class="item reveal">
+        <h4>Organizational Adoption</h4>
+        <p>Human-algorithm collaboration is non-trivial. Teams must be educated on interpreting AI outputs, trusting recommendations, and knowing when to intervene (Mattegunta, 2025).</p>
+      </div>
+    </div>
+    <div class="pro-col">
+      <div class="item reveal">
+        <h4>Privacy by Design</h4>
+        <p>Leading firms build data minimization and user consent into systems from day one rather than retrofitting it — reducing both legal risk and reputational damage (IBM, n.d.).</p>
+      </div>
+      <div class="item reveal">
+        <h4>Cloud Accessibility</h4>
+        <p>Cloud providers like AWS now offer managed ML services that dramatically lower the infrastructure barrier, making predictive analytics accessible to mid-sized businesses.</p>
+      </div>
+      <div class="item reveal">
+        <h4>Phased Rollouts Work</h4>
+        <p>Organizations that invest in robust data governance frameworks and phased rollouts tend to see substantially better ROI, reducing the risk of large failed implementations.</p>
+      </div>
+      <div class="item reveal">
+        <h4>Iterative Models</h4>
+        <p>Unlike static statistical models, AI-driven forecasting systems learn dynamically — continuously improving as new data flows in, closing the initial accuracy gap over time (IBM, n.d.).</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr>
+
+<!-- EXAMPLES -->
+<section id="examples">
+  <p class="section-label reveal">05 — Real-World Examples</p>
+  <h2 class="reveal">Seeing It in Action</h2>
+
+  <div class="example-block reveal">
+    <h3>Amazon</h3>
+    <p>Amazon uses an anticipatory shipping system in which AI-driven predictive analytics forecasts demand and places inventory closer to customers — even before orders are placed.</p>
+    <p>The system analyzes large volumes of data such as seasonal trends and purchase behaviours to generate predictions, enabling items to ship immediately upon order, shortening delivery times, and allowing Amazon to offer same-day or next-day delivery to many customers (Paul, 2023).</p>
+    <p><a href="https://www.forbes.com/sites/amazonwebservices/2021/12/03/predicting-the-future-of-demand-how-amazon-is-reinventing-forecasting-with-machine-learning/" target="_blank" rel="noopener" style="color:var(--accent3);font-size:.82rem;">→ Read: Amazon reinventing forecasting with ML (Forbes / AWS)</a></p>
+  </div>
+
+  <div class="example-block reveal">
+    <h3>Zara</h3>
+    <p>Zara uses machine learning algorithms to scan social media platforms, shopping platforms, and fashion magazines to identify early trends before they peak. By leveraging AI, they also process historical transactions and real-time market information to create an efficient inventory plan.</p>
+    <p>Zara uses AI to optimize their design cycle — generating designs and samples that significantly reduce cycle length and outpace competitors. Their planning and forecasting phase is incredibly fast due to AI technologies within their vertically integrated framework.</p>
+  </div>
+
+  <div class="example-block reveal">
+    <h3>Walmart</h3>
+    <p>Walmart has adopted AI-powered demand sensing to analyze weather, local events, and customer purchasing trends — improving forecast accuracy and enabling dynamic inventory adjustments across thousands of stores simultaneously (IBM, n.d.).</p>
+  </div>
+
+  <div class="example-block reveal">
+    <h3>Netflix <span style="font-size:.8rem;color:var(--muted);">(Bonus)</span></h3>
+    <p>While not a traditional supply chain, Netflix's demand prediction engine is a landmark case. By analyzing viewing patterns, time of day, device type, and seasonal behaviour, Netflix anticipates content demand — informing content investments and infrastructure scaling worth billions annually.</p>
+    <p><a href="https://medium.com/@hybrid.minds/how-netflix-and-amazon-use-predictive-analytics-to-anticipate-customer-needs-before-they-even-know-26653ba808aa" target="_blank" rel="noopener" style="color:var(--accent3);font-size:.82rem;">→ Read: How Netflix &amp; Amazon anticipate customer needs (Medium)</a></p>
+  </div>
+</section>
+
+<hr>
+
+<!-- FUTURE -->
+<section id="future">
+  <p class="section-label reveal">06 — Key Takeaways &amp; Future</p>
+  <h2 class="reveal">What This Means<br>Going Forward</h2>
+
+  <div class="takeaways-grid">
+    <div class="takeaway reveal">Shortened Downtime</div>
+    <div class="takeaway reveal">Heightened Effectiveness</div>
+    <div class="takeaway reveal">Improved Efficiency</div>
+    <div class="takeaway reveal">Adaptable to Emerging Trends</div>
+  </div>
+
+  <div class="callout reveal">
+    <h3>The Road Ahead</h3>
+    <p>Predictive analytics will become increasingly prevalent as AI advances, enabling more autonomous functions while maintaining human oversight. An IBM survey found that 90% of executives expect supply chain workflows to include AI assistants and automation by 2026 (IBM, n.d.).</p>
+    <p style="margin-top:.8rem;color:var(--muted);font-size:.88rem;">Emerging frontiers include real-time streaming analytics, automated machine learning (AutoML), edge computing at the warehouse level, and deeper integration of unstructured external data — each of which will further close the gap between demand signal and supply response (Mattegunta, 2025).</p>
+    <p style="margin-top:1rem;font-size:.82rem;">
+      Further reading:
+      <a href="https://www.oracle.com/ca-en/scm/ai-in-logistics/" target="_blank" rel="noopener" style="color:var(--accent);">Oracle — AI in Logistics</a> &nbsp;|&nbsp;
+      <a href="https://www.deloitte.com/ca/en/Industries/consumer/perspectives/building-supply-chain-resilience.html" target="_blank" rel="noopener" style="color:var(--accent);">Deloitte — Supply Chain Resilience</a> &nbsp;|&nbsp;
+      <a href="https://www.ibm.com/think/topics/ai-demand-forecasting" target="_blank" rel="noopener" style="color:var(--accent);">IBM — AI Demand Forecasting</a>
+    </p>
+  </div>
+</section>
+
+<hr>
+
+<!-- REFERENCES -->
+<section id="refs">
+  <p class="section-label reveal">07 — References</p>
+  <h2 class="reveal">Sources (APA)</h2>
+
+  <ul class="ref-list">
+    <li class="reveal">Adedoyin, T. O., Okoye, C. C., Ofodile, O. C., &amp; Ejairu, E. E. (2024). Reviewing predictive analytics in supply chain management: Applications and benefits. <em>World Journal of Advanced Research and Reviews, 21</em>(3), 568–574. <a href="https://doi.org/10.30574/wjarr.2024.21.3.0673" target="_blank" rel="noopener">https://doi.org/10.30574/wjarr.2024.21.3.0673</a></li>
+    <li class="reveal">Amazon Web Services. (n.d.). <em>Leveraging AI and cloud for supply chain resilience.</em> AWS Enterprise Strategy Blog. <a href="https://aws.amazon.com/blogs/enterprise-strategy/leveraging-ai-and-cloud-for-supply-chain-resilience/" target="_blank" rel="noopener">https://aws.amazon.com/blogs/enterprise-strategy/leveraging-ai-and-cloud-for-supply-chain-resilience/</a></li>
+    <li class="reveal">Amazon Web Services. (2021, December 3). Predicting the future of demand: How Amazon is reinventing forecasting with machine learning. <em>Forbes.</em> <a href="https://www.forbes.com/sites/amazonwebservices/2021/12/03/predicting-the-future-of-demand-how-amazon-is-reinventing-forecasting-with-machine-learning/" target="_blank" rel="noopener">https://www.forbes.com/sites/amazonwebservices/2021/12/03/predicting-the-future-of-demand-how-amazon-is-reinventing-forecasting-with-machine-learning/</a></li>
+    <li class="reveal">Deloitte. (n.d.). <em>Building supply chain resilience.</em> Deloitte Canada. <a href="https://www.deloitte.com/ca/en/Industries/consumer/perspectives/building-supply-chain-resilience.html" target="_blank" rel="noopener">https://www.deloitte.com/ca/en/Industries/consumer/perspectives/building-supply-chain-resilience.html</a></li>
+    <li class="reveal">Hybrid Minds. (2024, October 3). How Netflix and Amazon use predictive analytics to anticipate customer needs before they even know. <em>Medium.</em> <a href="https://medium.com/@hybrid.minds/how-netflix-and-amazon-use-predictive-analytics-to-anticipate-customer-needs-before-they-even-know-26653ba808aa" target="_blank" rel="noopener">https://medium.com/@hybrid.minds/how-netflix-and-amazon-use-predictive-analytics-to-anticipate-customer-needs-before-they-even-know-26653ba808aa</a></li>
+    <li class="reveal">IBM. (n.d.). <em>AI privacy.</em> IBM. <a href="https://www.ibm.com/think/insights/ai-privacy" target="_blank" rel="noopener">https://www.ibm.com/think/insights/ai-privacy</a></li>
+    <li class="reveal">IBM. (n.d.). <em>What is AI demand forecasting?</em> IBM. <a href="https://www.ibm.com/think/topics/ai-demand-forecasting" target="_blank" rel="noopener">https://www.ibm.com/think/topics/ai-demand-forecasting</a></li>
+    <li class="reveal">Mattegunta, V. K. P. (2025). Data-driven retail: The interconnected ecosystem of predictive merchandising analytics. <em>World Journal of Advanced Research and Reviews, 26</em>(1), 4084–4092. <a href="https://doi.org/10.30574/wjarr.2025.26.1.1570" target="_blank" rel="noopener">https://doi.org/10.30574/wjarr.2025.26.1.1570</a></li>
+    <li class="reveal">Oracle. (n.d.). <em>AI in logistics.</em> Oracle. <a href="https://www.oracle.com/ca-en/scm/ai-in-logistics/" target="_blank" rel="noopener">https://www.oracle.com/ca-en/scm/ai-in-logistics/</a></li>
+    <li class="reveal">Paul, R. (2023). AI integration in e-commerce business models: Case studies on Amazon FBA, Airbnb, and Turo operations. <em>American Journal of Advanced Technology and Engineering Solutions, 3</em>(3), 1–31. <a href="https://doi.org/10.63125/1ekaxx73" target="_blank" rel="noopener">https://doi.org/10.63125/1ekaxx73</a></li>
+    <li class="reveal">Yerra, S. (2025). Optimizing supply chain efficiency using AI-driven predictive analytics in logistics. <em>International Journal of Scientific Research in Computer Science Engineering and Information Technology, 11</em>(2), 1212–1220. <a href="https://doi.org/10.32628/CSEIT25112475" target="_blank" rel="noopener">https://doi.org/10.32628/CSEIT25112475</a></li>
+  </ul>
+</section>
+
+<footer>
+  © 2025 Emmie Huynh, David Hisole, Justin Fournier — Predictive Analytics in Supply Chain Management
+</footer>
+
+<script>
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); }
+    });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>
